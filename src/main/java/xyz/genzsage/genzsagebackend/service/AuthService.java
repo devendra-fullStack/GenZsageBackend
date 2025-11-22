@@ -88,4 +88,29 @@ public class AuthService {
 
         return new AuthResponse(newAccessToken, refreshToken);
     }
+
+    public AvailabilityResponse isAvailable(CheckAvailabilityRequest request) {
+        Optional<Sage> existing = sageRepository.findByIdentityOrEmailOrPhoneNumber(
+                request.getIdentity(),
+                request.getEmail(),
+                request.getPhoneNumber()
+        );
+
+        if (existing.isPresent()) {
+            Sage user = existing.get();
+
+            if (user.getIdentity().equals(request.getIdentity())) {
+                return new AvailabilityResponse(false, "Identity already registered");
+            }
+            if (user.getEmail().equals(request.getEmail())) {
+                return new AvailabilityResponse(false, "Email already registered");
+            }
+            if (user.getPhoneNumber().equals(request.getPhoneNumber())) {
+                return new AvailabilityResponse(false, "Phone number already registered");
+            }
+        }
+
+        return new AvailabilityResponse(true, "Go ahead");
+    }
+
 }
