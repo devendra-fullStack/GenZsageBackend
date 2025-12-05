@@ -1,14 +1,27 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  postgres:
+  app:
+    build: .
+    container_name: genzsage-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/genzsage
+      SPRING_DATASOURCE_USERNAME: genzuser
+      SPRING_DATASOURCE_PASSWORD: genzpass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  db:
     image: postgres:16
-    container_name: spring_demo_db
+    container_name: genzsage-db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Master@8857
-      POSTGRES_DB: postgres
+      POSTGRES_DB: genzsage
+      POSTGRES_USER: genzuser
+      POSTGRES_PASSWORD: genzpass
     ports:
       - "5432:5432"
     volumes:
@@ -16,4 +29,11 @@ services:
 
 volumes:
   postgres_data:
+
+
+
+
+
+
+
 
