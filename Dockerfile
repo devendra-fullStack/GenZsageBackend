@@ -15,7 +15,7 @@ RUN mvn clean package -DskipTests
 # ================================
 # 2) Runtime Stage – Copy ONLY the real Boot JAR
 # ================================
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
