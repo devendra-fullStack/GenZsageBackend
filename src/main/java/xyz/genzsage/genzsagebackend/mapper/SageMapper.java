@@ -25,12 +25,11 @@ public class SageMapper {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .birthday(request.getBirthday())
                 .country(request.getCountry())
-                .postalCode(request.getPostalCode())
-                .latitude(request.getLatitude() != null ? request.getLatitude() : 0.0)
-                .longitude(request.getLongitude() != null ? request.getLongitude() : 0.0)
-                .gender(request.getGender())
                 .bio(request.getBio())
+                .isPrivate(request.isPrivate())
+                .profilePicUrl(request.getProfilePicUrl())
                 .lastLogin(Instant.now())
+                // languagePreference is optional, default 0L in entity
                 .build();
     }
 }

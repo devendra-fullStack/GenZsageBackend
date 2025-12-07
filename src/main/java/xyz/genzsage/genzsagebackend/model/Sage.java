@@ -1,27 +1,16 @@
 package xyz.genzsage.genzsagebackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import xyz.genzsage.genzsagebackend.model.enums.Gender;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Sage entity represents a registered user in the system.
- * <p>
- * Notes:
- * - identity is user-defined (not auto-generated)
- * - passwordHash should never be exposed in API responses
- * - createdAt is automatically set at creation time
- */
 @Entity
 @Table(name = "sages")
 @EntityListeners(AuditingEntityListener.class)
@@ -34,28 +23,31 @@ public class Sage {
 
     @Id
     @Column(nullable = false, unique = true)
-    private String identity;  // user-defined ID for unique reference and also for JWT payload
+    private String identity;
 
     @Column(nullable = false)
-    private String profileName; // display name for other users
+    private String profileName;
 
     @Column(nullable = false)
-    private String passwordHash; // securely stored hash of the password
+    private String passwordHash;
 
     @Column(nullable = false, unique = true)
-    private String email; // email for login, recovery, OAuth, etc.
-
-
+    private String email;
 
     @Column(unique = true)
-    private String phoneNumber; // user’s phone number(as a 2factor auth later)
+    private String phoneNumber;
+
+    private LocalDate birthday;
+
+    private String country;
+
+    @Builder.Default
+    private Long languagePreference = 0L;   //here 0 represents english which is also default language
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-
-    private LocalDate birthday;
     @LastModifiedDate
     private Instant updatedAt;
 
@@ -63,24 +55,16 @@ public class Sage {
 
     private String profilePicUrl;
 
-    private String country; // user’s country (audience checking)
-
-    private String postalCode;
-
-    private double latitude;
-    private double longitude;
-    private Gender gender;
     @Builder.Default
     private boolean isDeleted = false;
+
     @Builder.Default
-    private boolean isPrivate=false;
-
-
+    private boolean isPrivate = false;
 
     @Column(columnDefinition = "TEXT")
-    private String bio; // longer text field for profile description
+    private String bio;
 
-    //Follower and Following relationship
+    // FOLLOWING / FOLLOWERS RELATIONSHIP
     @Builder.Default
     @ManyToMany
     @JoinTable(
@@ -94,28 +78,22 @@ public class Sage {
     @ManyToMany(mappedBy = "following")
     private Set<Sage> followers = new HashSet<>();
 
+    // PREFERRED TAGS (user favorites)
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "sage_preferred_tags",
+            joinColumns = @JoinColumn(name = "sage_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> preferredTags = new HashSet<>();
 
     @PrePersist
     private void prePersist() {
         Instant now = Instant.now();
 
-        // createdAt will already be handled by @CreatedDate,
-        // but we can ensure it's initialized in case auditing is not enabled
-        if (createdAt == null) {
-            createdAt = now;
-        }
-
-        // set updatedAt on creation too
-        if (updatedAt == null) {
-            updatedAt = now;
-        }
-
-        // ensure default values
-        if (lastLogin == null) {
-            lastLogin = now;
-        }
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+        if (lastLogin == null) lastLogin = now;
     }
-
-
-
 }
